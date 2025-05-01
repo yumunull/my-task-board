@@ -1,26 +1,59 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*:root {*/
+/*  --background: #ffffff;*/
+/*  --foreground: #171717;*/
+/*}*/
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-outfit: var(--font-outfit);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/*@media (prefers-color-scheme: dark) {*/
+/*  :root {*/
+/*    --background: #0a0a0a;*/
+/*    --foreground: #ededed;*/
+/*  }*/
+/*}*/
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/*body {*/
+/*  background: var(--background);*/
+/*  color: var(--foreground);*/
+/*  font-family: Arial, Helvetica, sans-serif;*/
+/*}*/
+
+@theme {
+  --color-white: #F8FAFC;
+  --color-yellow: #F5D565;
+  --color-skin: #F5E8D5;
+  --color-orange: #E9A23B;
+  --color-light-green: #A0ECB1;
+  --color-green: #32D657;
+  --color-pink: #F7D4D3;
+  --color-red: #DD524C;
+  --color-light-gray: #E3E8EF;
+  --color-gray-blue: #97A3B6;
+  --color-blue: #3662E3;
+  --color-black-transparent: #00000033;
+  
+  --text-title: 2.5rem;
+  --text-title--font-weight: 400;
+  
+  --text-description: 1rem;
+  --text-description--font-weight: 400;
+  
+  --text-description-light: 1rem;
+  --text-description-light--font-weight: 300;
+  
+  --text-task-title: 1.25rem;
+  --text-task-title--font-weight: 600;
+  
+  --text-task-button: 0.875rem;
+  --text-task-button--font-weight: 600;
+  
+  --text-button-text: 0.875rem;
+  --text-button-text--font-weight: 500;
+   
+  --text-input-level: 0.75rem;
+  --text-input-level--font-weight: 400;
 }
