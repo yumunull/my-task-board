@@ -10,6 +10,15 @@ export enum EStatus {
     WONT_DO,
 }
 
+export const Status : {
+   display:string,
+   status:EStatus, 
+}[] = [
+    {display: "In Progress", status: EStatus.IN_PROGRESS},
+    {display: "Completed", status: EStatus.COMPLETED},
+    {display: "Won't do", status: EStatus.WONT_DO},
+]
+
 export enum EFunctionality {
     NORMAL,
     ADD_TASK,
@@ -67,7 +76,7 @@ const Task: React.FC<Props> = ({
         }
     ))
     return (
-        <div className={`flex py-3 px-4 gap-x-4 rounded-xl ${styles}`}>
+        <div className={`flex py-3 px-4 gap-x-4 ${styles} w-full`}>
             <div className={`${iconStyles} rounded-xl w-12 h-12 flex aspect-square items-center justify-center`}>
                 {icon in EIcon ? <span>{Icons[icon as EIcon]}</span> :
                     <Image src={icon as string} alt={`task icon`} width={24} height={24}/>}
