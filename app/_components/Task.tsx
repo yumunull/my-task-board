@@ -2,22 +2,28 @@
 import Image from "next/image";
 import {twMerge} from "tailwind-merge";
 import clsx from "clsx";
+import {cn} from "@/lib/utils";
 
 export enum EStatus {
-    TODO,
-    IN_PROGRESS,
-    COMPLETED,
-    WONT_DO,
+    TODO = "TODO",
+    IN_PROGRESS = "IN_PROGRESS",
+    COMPLETED = "COMPLETED",
+    WONT_DO = "WONT_DO",
 }
 
-export const Status : {
-   display:string,
-   status:EStatus, 
-}[] = [
-    {display: "In Progress", status: EStatus.IN_PROGRESS},
-    {display: "Completed", status: EStatus.COMPLETED},
-    {display: "Won't do", status: EStatus.WONT_DO},
-]
+
+interface IStatus {
+    display: string,
+    status: EStatus,
+    icon: string,
+}
+
+export const statusMap = new Map<EStatus, IStatus>([
+    [EStatus.IN_PROGRESS, {display: "In Progress", status: EStatus.IN_PROGRESS, icon: "/Time_atack_duotone.svg"}],
+    [EStatus.COMPLETED, {display: "Completed", status: EStatus.COMPLETED, icon: "/Done_round_duotone.svg"}],
+    [EStatus.WONT_DO, {display: "Won't do", status: EStatus.WONT_DO, icon: "/close_ring_duotone.svg"}],
+])
+
 
 export enum EFunctionality {
     NORMAL,
@@ -68,7 +74,7 @@ const Task: React.FC<Props> = ({
             'bg-skin': functionality === EFunctionality.ADD_TASK,
         }
     ))
-    
+
     const iconStyles = twMerge(clsx(
         'bg-white',
         {
@@ -86,6 +92,25 @@ const Task: React.FC<Props> = ({
                 <span className={`grow text-task-title`}>{name}</span>
                 <span className={`text-description-light`}>{description}</span>
             </div>
+
+            <div className={`w-12 h-12 ml-auto`}>
+                <Status status={status}/>
+            </div>
+        </div>
+    )
+}
+
+export const Status = ({status}: { status: EStatus }) => {
+    const styles = cn("bg-transparent", {
+        "bg-orange": status === EStatus.IN_PROGRESS,
+        "bg-green": status === EStatus.COMPLETED,
+        "bg-red": status === EStatus.WONT_DO,
+    })
+    return (
+        <div className={`${styles} w-full h-full flex aspect-square items-center justify-center rounded-xl`}>
+            {statusMap.has(status) ?
+                <Image src={statusMap.get(status)?.icon ?? "" } alt={`status icon`} width={24} height={24}/> : <>{}</>
+            }
         </div>
     )
 }
