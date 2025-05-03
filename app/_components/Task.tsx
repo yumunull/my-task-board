@@ -32,32 +32,24 @@ export enum EFunctionality {
 
 
 export enum EIcon {
-    WORKING,
-    CHAT,
-    COFFEE,
-    WORKOUT,
-    BOOK,
-    CLOCK,
+    WORKING     = "💻",
+    CHAT        = "💬",
+    COFFEE      = "☕️",
+    WORKOUT     = "🏋️",
+    BOOK        = "📚",
+    CLOCK       = "⏰",
 }
 
-export const Icons = [
-    "💻",
-    "💬",
-    "☕️",
-    "🏋️",
-    "📚",
-    "⏰",
-]
-
-interface Props {
+export interface TaskProps {
+    id?: string;
     name: string;
-    description?: string;
+    description: string;
     icon: EIcon | string;
     status?: EStatus;
     functionality?: EFunctionality;
 }
 
-const Task: React.FC<Props> = ({
+const Task: React.FC<TaskProps> = ({
                                    name,
                                    description = "",
                                    icon,
@@ -84,7 +76,7 @@ const Task: React.FC<Props> = ({
     return (
         <div className={`flex py-3 px-4 gap-x-4 ${styles} w-full`}>
             <div className={`${iconStyles} rounded-xl w-12 h-12 flex aspect-square items-center justify-center`}>
-                {icon in EIcon ? <span>{Icons[icon as EIcon]}</span> :
+                {Object.values(EIcon).includes(icon as EIcon) ? <span>{icon}</span> :
                     <Image src={icon as string} alt={`task icon`} width={24} height={24}/>}
             </div>
 

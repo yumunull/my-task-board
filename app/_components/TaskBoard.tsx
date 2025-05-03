@@ -1,17 +1,46 @@
 ﻿"use client"
-import Task, {EFunctionality, EIcon, EStatus} from "@/app/_components/Task";
+import Task, {EFunctionality, EIcon, EStatus, TaskProps} from "@/app/_components/Task";
 import Image from "next/image";
 import {ReactNode, useState} from "react";
 import TaskWrapper from "@/app/_components/TaskWrapper";
 
 const TaskBoard = () => {
-    const [tasks, setTasks] = useState<ReactNode[]> ([
-        <Task name={`Task in Progress`} status={EStatus.IN_PROGRESS} icon={EIcon.CLOCK}/>,
-        <Task name={`Task Completed`} icon={EIcon.WORKOUT} status={EStatus.COMPLETED}/>,
-        <Task name={`Task Won't Do`} icon={EIcon.COFFEE} status={EStatus.WONT_DO}/>,
-        <Task name={`Task To Do`} description={`Work on a Challenge on devChallenges.io, learn TypeScript.`}
-              icon={EIcon.BOOK} status={EStatus.TODO}/>,
+    const [tasksProps, setTasksProps] = useState<TaskProps[]>([
+        {
+            name: `Task in Progress`,
+            description: ``,
+            status: EStatus.IN_PROGRESS,
+            icon: EIcon.CLOCK,
+        },
+        {
+            name: `Task Completed`,
+            description: ``,
+            icon: EIcon.WORKOUT,
+            status: EStatus.COMPLETED,
+        },
+        {
+            name: `Task Won't Do`,
+            description: ``,
+            icon: EIcon.COFFEE,
+            status: EStatus.WONT_DO,
+        },
+        {
+            name: `Task to Do`,
+            description: `Work on a Challenge on devChallenge.io, learn TypeScript.`,
+            icon: EIcon.BOOK,
+            status: EStatus.TODO,
+        }
     ])
+    
+    // useEffect(()=>{
+    //     (async ()=>{
+    //         const res = await fetch(`/api/boards`, {
+    //             method: 'POST',
+    //         })
+    //         const json = await res.json()
+    //         console.log(json)
+    //     })()
+    // },[])
     
     return (
         <div className={`flex flex-col justify-center items-center h-full gap-y-8 font-outfit`}>
@@ -23,12 +52,12 @@ const TaskBoard = () => {
                 </div>
             </div>
             <div className={`flex flex-col gap-4 max-w-[600px]`}>
-                {tasks.map((task, index) => 
+                {tasksProps.map((props, index) => 
                     <TaskWrapper key={index}>
-                        {task}
+                        <Task {...props}/>
                     </TaskWrapper>)}
                 <TaskWrapper>
-                    <Task name={`Add new task`} icon={`/Add_round_duotone.svg`} functionality={EFunctionality.ADD_TASK}/>
+                    <Task name={`Add new task`} icon={`/Add_round_duotone.svg`} functionality={EFunctionality.ADD_TASK} description={``}/>
                 </TaskWrapper>
             </div>
         </div>
