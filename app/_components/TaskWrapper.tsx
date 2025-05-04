@@ -1,5 +1,4 @@
-﻿"use client"
-import {Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet"
+﻿import {Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet"
 import React, {isValidElement, useState} from "react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
@@ -30,7 +29,6 @@ const iconList = [
 const TaskWrapper = ({children}: React.PropsWithChildren) => {
     const {editingTask, setEditingTask} = useEditingTaskStore()
     const {boardInfo, setBoardId, setBoardTasks, setBoardTaskId, setBoardTask} = useBoardStore()
-    const [triggerSaveTask, setTriggerSaveTask] = useState(false)
 
     const handleSaveTask = async () => {
         let boardId = boardInfo.id
