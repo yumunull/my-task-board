@@ -10,6 +10,8 @@ import {ToggleGroup, ToggleGroupItem} from "@/components/ui/toggle-group";
 import useEditingTaskStore from "@/stores/useEditingTaskStore";
 import useBoardStore from "@/stores/useBoardStore";
 import {getEdgeInstrumentationModule} from "next/dist/server/web/globals";
+import UseEditingTaskStore from "@/stores/useEditingTaskStore";
+import {Edit} from "lucide-react";
 
 const statusList = [
     EStatus.IN_PROGRESS,
@@ -31,11 +33,8 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
     const {boardInfo, setBoardId, setBoardTasks, setBoardTaskId, setBoardTask} = useBoardStore()
 
     const handleSaveTask = async () => {
-        let boardId = boardInfo.id
-        let taskIds: (string | undefined)[] = boardInfo.tasks.map(x=>x.id)
-        let editingTaskId = editingTask.id
 
-        if (boardId === undefined) {
+        if (boardInfo.id === undefined) {
             const res = await fetch("/api/boards", {
                 method: "POST",
                 headers: {
@@ -43,10 +42,8 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
                 }
             })
             const json = await res.json()
-            boardId = json.id
-            setBoardId(boardId as string)
+            setBoardId(json.id)
 
-            taskIds = []
             await Promise.all(boardInfo.tasks.map(async (task, index) => {
                 const res = await fetch("/api/tasks", {
                     method: "POST",
@@ -56,18 +53,17 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
                     }
                 })
                 const json = await res.json()
-                const taskId = json.id
-                taskIds.push(taskId)
-                setBoardTaskId(index, taskId)
+                setBoardTaskId(index, json.id)
+                
+                if (index === editingTask.index) {
+                    setEditingTask({...editingTask, id: json.id})
+                }
             }))
-
-
-            if (editingTask.index !== undefined) {
-                editingTaskId = taskIds[editingTask.index]
-                setEditingTask({...editingTask, id: editingTaskId})
-            }
         }
-        if (editingTaskId === undefined) {
+        
+        const currentEditingTask = useEditingTaskStore.getState().editingTask
+        
+        if (currentEditingTask.id === undefined) {
             const res = await fetch("/api/tasks", {
                 method: "POST",
                 body: JSON.stringify(editingTask),
@@ -81,16 +77,15 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
                 ...editingTask,
                 id: json.id
             })
-            setBoardTasks(boardInfo.tasks.map(task => task.id == editingTask.id ? json : task))
+            setBoardTask(editingTask.index as number, json)
         } else {
-            const res = await fetch(`/api/tasks/${editingTaskId}`, {
+            const res = await fetch(`/api/tasks/${currentEditingTask.id}`, {
                 method: "PUT",
                 body: JSON.stringify(editingTask),
                 headers: {
                     "Content-Type": "application/json",
                 }
             })
-            const json = await res.json()
             if (res.ok)
             {
                 setBoardTask(editingTask.index as number, editingTask)
