@@ -1,24 +1,36 @@
 ﻿import {create} from "zustand";
-import {EStatus, TaskProps} from "@/app/_components/Task";
+import {EIcon, EStatus, TaskProps} from "@/app/_components/Task";
+import {immer} from "zustand/middleware/immer";
+import {STATE_CLOSED} from "mongodb/src/sdam/common";
 
-interface EditingTaskStore {
+interface State {
     editingTask: TaskProps,
-    updateEditingTask: (updated: Partial<TaskProps>) => void,
 }
 
-const useEditingTaskStore = create<EditingTaskStore>(set => ({
+interface Actions {
+    setName: (name: string) => void,
+    setDescription: (description: string) => void,
+    setIcon: (icon: EIcon) => void,
+    setStatus: (status: EStatus) => void,
+    setEditingTask: (task: TaskProps) => void,
+    setIndex: (index: number) => void,
+}
+
+const useEditingTaskStore = create<State & Actions>()(
+    immer((set) => ({
     editingTask: {
         name: "",
         description: "",
         icon: "",
         status: EStatus.TODO,
     },
-    
-    updateEditingTask: (updated) => set((state => ({
-        editingTask: {...state.editingTask, ...updated}
-    }))),
-    
-    
-}))
+        index: 0,
+        setName: (name) => set((state) => {state.editingTask.name = name}),
+        setStatus: (status => set(state => {state.editingTask.status = status})),
+        setDescription: (description) => set((state) => {state.editingTask.description = description}),
+        setIcon: (icon) => set((state) => {state.editingTask.icon = icon}),
+        setEditingTask: (task) => set((state) => {state.editingTask = task}),
+        setIndex: (index) => set((state) => {state.editingTask.index = index}),
+})))
 
 export default useEditingTaskStore

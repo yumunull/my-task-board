@@ -32,30 +32,33 @@ export enum EFunctionality {
 
 
 export enum EIcon {
-    WORKING     = "💻",
-    CHAT        = "💬",
-    COFFEE      = "☕️",
-    WORKOUT     = "🏋️",
-    BOOK        = "📚",
-    CLOCK       = "⏰",
+    WORKING = "💻",
+    CHAT = "💬",
+    COFFEE = "☕️",
+    WORKOUT = "🏋️",
+    BOOK = "📚",
+    CLOCK = "⏰",
 }
 
 export interface TaskProps {
     id?: string;
+    boardId?: string;
     name: string;
     description: string;
     icon: EIcon | string;
     status?: EStatus;
+    index?: number;
     functionality?: EFunctionality;
 }
 
 const Task: React.FC<TaskProps> = ({
-                                   name,
-                                   description = "",
-                                   icon,
-                                   status = EStatus.TODO,
-                                   functionality = EFunctionality.NORMAL,
-                               }) => {
+                                       name,
+                                       description = "",
+                                       icon,
+                                       status = EStatus.TODO,
+                                       functionality = EFunctionality.NORMAL,
+                                       index
+                                   }) => {
 
     const styles = twMerge(clsx(
         {
@@ -76,7 +79,7 @@ const Task: React.FC<TaskProps> = ({
     return (
         <div className={`flex py-3 px-4 gap-x-4 ${styles} w-full`}>
             <div className={`${iconStyles} rounded-xl w-12 h-12 flex aspect-square items-center justify-center`}>
-                {Object.values(EIcon).includes(icon as EIcon) ? <span>{icon}</span> :
+                {Object.values(EIcon).includes(icon as EIcon) || icon == "" ? <span>{icon}</span> :
                     <Image src={icon as string} alt={`task icon`} width={24} height={24}/>}
             </div>
 
@@ -101,7 +104,7 @@ export const Status = ({status}: { status: EStatus }) => {
     return (
         <div className={`${styles} w-full h-full flex aspect-square items-center justify-center rounded-xl`}>
             {statusMap.has(status) ?
-                <Image src={statusMap.get(status)?.icon ?? "" } alt={`status icon`} width={24} height={24}/> : <>{}</>
+                <Image src={statusMap.get(status)?.icon ?? ""} alt={`status icon`} width={24} height={24}/> : <>{}</>
             }
         </div>
     )

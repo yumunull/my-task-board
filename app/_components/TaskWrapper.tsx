@@ -1,13 +1,16 @@
-﻿import {Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet"
-import React, {isValidElement} from "react";
+﻿"use client"
+import {Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet"
+import React, {isValidElement, useState} from "react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
-import {EIcon, EStatus, Status, statusMap} from "./Task"
+import {EIcon, EStatus, Status, statusMap, TaskProps} from "./Task"
 import {Button} from "@/components/ui/button";
 import Image from "next/image";
 import {ToggleGroup, ToggleGroupItem} from "@/components/ui/toggle-group";
 import useEditingTaskStore from "@/stores/useEditingTaskStore";
+import useBoardStore from "@/stores/useBoardStore";
+import {getEdgeInstrumentationModule} from "next/dist/server/web/globals";
 
 const statusList = [
     EStatus.IN_PROGRESS,
@@ -25,17 +28,84 @@ const iconList = [
 ]
 
 const TaskWrapper = ({children}: React.PropsWithChildren) => {
-    const {editingTask, updateEditingTask} = useEditingTaskStore()
-    const handleSaveTask = () => {
-        
-    }
-    
-    const handleSendTaskPropsToStore = () => {
-        if(isValidElement(children)) {
-            updateEditingTask(children.props)
+    const {editingTask, setEditingTask} = useEditingTaskStore()
+    const {boardInfo, setBoardId, setBoardTasks, setBoardTaskId, setBoardTask} = useBoardStore()
+    const [triggerSaveTask, setTriggerSaveTask] = useState(false)
+
+    const handleSaveTask = async () => {
+        let boardId = boardInfo.id
+        let taskIds: (string | undefined)[] = boardInfo.tasks.map(x=>x.id)
+        let editingTaskId = editingTask.id
+
+        if (boardId === undefined) {
+            const res = await fetch("/api/boards", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+            const json = await res.json()
+            boardId = json.id
+            setBoardId(boardId as string)
+
+            taskIds = []
+            await Promise.all(boardInfo.tasks.map(async (task, index) => {
+                const res = await fetch("/api/tasks", {
+                    method: "POST",
+                    body: JSON.stringify(task),
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                })
+                const json = await res.json()
+                const taskId = json.id
+                taskIds.push(taskId)
+                setBoardTaskId(index, taskId)
+            }))
+
+
+            if (editingTask.index !== undefined) {
+                editingTaskId = taskIds[editingTask.index]
+                setEditingTask({...editingTask, id: editingTaskId})
+            }
+        }
+        if (editingTaskId === undefined) {
+            const res = await fetch("/api/tasks", {
+                method: "POST",
+                body: JSON.stringify(editingTask),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+            const json = await res.json()
+            console.log(json)
+            setEditingTask({
+                ...editingTask,
+                id: json.id
+            })
+            setBoardTasks(boardInfo.tasks.map(task => task.id == editingTask.id ? json : task))
+        } else {
+            const res = await fetch(`/api/tasks/${editingTaskId}`, {
+                method: "PUT",
+                body: JSON.stringify(editingTask),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+            const json = await res.json()
+            if (res.ok)
+            {
+                setBoardTask(editingTask.index as number, editingTask)
+            }
         }
     }
-    
+
+    const handleSendTaskPropsToStore = () => {
+        if (isValidElement(children)) {
+            setEditingTask(children.props as TaskProps)
+        }
+    }
+
     return (
         <Sheet>
             <SheetTrigger asChild>
@@ -56,18 +126,22 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
                 `}>
                     <div>
                         <Label htmlFor={"name"}>Task name</Label>
-                        <Input id={"name"} placeholder={"Enter your task name"} className={`focus-visible:ring-blue`} value={editingTask.name} onChange={(e) => updateEditingTask({name: e.target.value})}/>
+                        <Input id={"name"} placeholder={"Enter your task name"} className={`focus-visible:ring-blue`}
+                               value={editingTask.name}
+                               onChange={(e) => setEditingTask({...editingTask, name: e.target.value})}/>
                     </div>
 
                     <div>
                         <Label htmlFor={"description"}>Description</Label>
                         <Textarea id={"description"} placeholder={"Enter a short description"} rows={8}
-                                  className={`resize-none focus-visible:ring-blue`} value={editingTask.description} onChange={(e) => updateEditingTask({description: e.target.value})}/>
+                                  className={`resize-none focus-visible:ring-blue`} value={editingTask.description}
+                                  onChange={(e) => setEditingTask({...editingTask, description: e.target.value})}/>
                     </div>
 
                     <div>
                         <Label>Icon</Label>
-                        <ToggleGroup type={"single"} className={`flex gap-4 rounded-none`} value={editingTask.icon} onValueChange={(value) => updateEditingTask({icon: value})}>
+                        <ToggleGroup type={"single"} className={`flex gap-4 rounded-none`} value={editingTask.icon}
+                                     onValueChange={(value) => setEditingTask({...editingTask, icon: value})}>
                             {iconList.map((icon, index) =>
                                 <ToggleGroupItem key={icon} id={index.toString()} value={icon}
                                                  className={`h-12 aspect-square rounded-lg bg-light-gray data-[state=on]:bg-yellow`}>
@@ -79,7 +153,11 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
 
                     <div>
                         <Label>Status</Label>
-                        <ToggleGroup type={"single"} className={`w-full gap-4 grid grid-cols-2`} value={editingTask.status} onValueChange={(value) => updateEditingTask({status: value})}>
+                        <ToggleGroup type={"single"} className={`w-full gap-4 grid grid-cols-2`}
+                                     value={editingTask.status} onValueChange={(value) => setEditingTask({
+                            ...editingTask,
+                            status: value as EStatus
+                        })}>
                             {statusList.map((status, index) =>
                                 <ToggleGroupItem value={status}
                                                  className={`w-full group h-14 flex justify-start !rounded-2xl p-[0.15em] border-light-gray border-2 data-[state=on]:border-blue`}
@@ -105,7 +183,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
                         Delete
                         <Image src={`Trash.svg`} alt={`delete icon`} width={20} height={20}/>
                     </Button>
-                    <Button className={`bg-blue rounded-full w-28`}>
+                    <Button className={`bg-blue rounded-full w-28`} onClick={() => handleSaveTask()}>
                         Save
                         <Image src={`Done_round.svg`} alt={`save icon`} width={20} height={20}/>
                     </Button>
