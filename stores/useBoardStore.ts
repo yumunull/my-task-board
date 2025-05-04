@@ -15,7 +15,8 @@ interface Actions {
     setBoardId: (id: string) => void,
     setBoardTasks: (tasks: TaskProps[]) => void,
     setBoardTaskId: (index: number, id: string) => void,
-    setBoardTask: (idnex: number, task: TaskProps) => void,
+    setBoardTask: (index: number, task: TaskProps) => void,
+    deleteBoardTask: (index: number) => void,
 }
 
 
@@ -57,6 +58,8 @@ const useBoardStore = create<State & Actions>()(
         setBoardTaskId: (index, id) => set((state) => {state.boardInfo.tasks[index].id = id}),
         
         setBoardTask: (index, task) => set((state) => {state.boardInfo.tasks[index] = task}),
+        
+        deleteBoardTask: (index) => set((state) => {state.boardInfo.tasks.splice(index, 1)}),
     })))
 
 export default useBoardStore

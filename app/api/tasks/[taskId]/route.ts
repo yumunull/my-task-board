@@ -9,3 +9,14 @@ export const PUT = async (req: NextRequest, { params }: {params: Promise<{taskId
     const task = await Task.findOneAndUpdate({_id: taskId}, json, {new: true})
     return NextResponse.json(task)
 }
+
+export const DELETE = async(req: NextRequest, { params }: {params: Promise<{taskId: string}>}) => {
+    await dbConnect()
+    const {taskId} = await params
+    try {
+        Task.findOneAndDelete({_id: taskId})
+        return NextResponse.json({id: taskId})   
+    } catch(e:any) {
+        return NextResponse.json({error: e.message}, {status: 404})   
+    }
+}

@@ -1,4 +1,12 @@
-﻿import {Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet"
+﻿import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger
+} from "@/components/ui/sheet"
 import React, {isValidElement, useState} from "react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
@@ -30,67 +38,105 @@ const iconList = [
 
 const TaskWrapper = ({children}: React.PropsWithChildren) => {
     const {editingTask, setEditingTask} = useEditingTaskStore()
-    const {boardInfo, setBoardId, setBoardTasks, setBoardTaskId, setBoardTask} = useBoardStore()
+    const {boardInfo, setBoardId, setBoardTasks, setBoardTaskId, setBoardTask, deleteBoardTask} = useBoardStore()
+    const createBoard = async () => {
+        const res = await fetch("/api/boards", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        const json = await res.json()
+        setBoardId(json.id)
 
-    const handleSaveTask = async () => {
-
-        if (boardInfo.id === undefined) {
-            const res = await fetch("/api/boards", {
+        await Promise.all(boardInfo.tasks.map(async (task, index) => {
+            const res = await fetch("/api/tasks", {
                 method: "POST",
+                body: JSON.stringify(task),
                 headers: {
                     "Content-Type": "application/json",
                 }
             })
             const json = await res.json()
-            setBoardId(json.id)
+            setBoardTaskId(index, json.id)
 
-            await Promise.all(boardInfo.tasks.map(async (task, index) => {
-                const res = await fetch("/api/tasks", {
-                    method: "POST",
-                    body: JSON.stringify(task),
-                    headers: {
-                        "Content-Type": "application/json",
-                    }
-                })
-                const json = await res.json()
-                setBoardTaskId(index, json.id)
-                
-                if (index === editingTask.index) {
-                    setEditingTask({...editingTask, id: json.id})
-                }
-            }))
+            if (index === editingTask.index) {
+                setEditingTask({...editingTask, id: json.id})
+            }
+        }))
+    }
+
+    const createTask = async () => {
+        const res = await fetch("/api/tasks", {
+            method: "POST",
+            body: JSON.stringify(editingTask),
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        const json = await res.json()
+        console.log(json)
+        setEditingTask({
+            ...editingTask,
+            id: json.id
+        })
+        setBoardTask(editingTask.index as number, json)
+    }
+    
+    const updateTask = async () => {
+        const currentEditingTask = useEditingTaskStore.getState().editingTask
+        const res = await fetch(`/api/tasks/${currentEditingTask.id}`, {
+            method: "PUT",
+            body: JSON.stringify(editingTask),
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        if (res.ok)
+        {
+            setBoardTask(editingTask.index as number, editingTask)
+        }
+    }
+    
+    const deleteTask = async () => {
+        const currentEditingTask = useEditingTaskStore.getState().editingTask
+        const res = await fetch(`/api/tasks/${currentEditingTask.id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        if (res.ok) {
+            deleteBoardTask(editingTask.index as number)
+        }
+    }
+
+    const handleSaveTask = async () => {
+
+        if (boardInfo.id === undefined) {
+           await createBoard()
         }
         
         const currentEditingTask = useEditingTaskStore.getState().editingTask
         
         if (currentEditingTask.id === undefined) {
-            const res = await fetch("/api/tasks", {
-                method: "POST",
-                body: JSON.stringify(editingTask),
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            })
-            const json = await res.json()
-            console.log(json)
-            setEditingTask({
-                ...editingTask,
-                id: json.id
-            })
-            setBoardTask(editingTask.index as number, json)
+            await createTask()
         } else {
-            const res = await fetch(`/api/tasks/${currentEditingTask.id}`, {
-                method: "PUT",
-                body: JSON.stringify(editingTask),
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            })
-            if (res.ok)
-            {
-                setBoardTask(editingTask.index as number, editingTask)
-            }
+            await updateTask()
         }
+    }
+    
+    const handleDeleteTask = async () => {
+        if (boardInfo.id === undefined) {
+            await createBoard()
+        }
+        
+        const currentEditingTask = useEditingTaskStore.getState().editingTask
+        
+        if (currentEditingTask.id !== undefined) {
+            await deleteTask()
+        }
+        
     }
 
     const handleSendTaskPropsToStore = () => {
@@ -134,7 +180,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
                     <div>
                         <Label>Icon</Label>
                         <ToggleGroup type={"single"} className={`flex gap-4 rounded-none`} value={editingTask.icon}
-                                     onValueChange={(value) => setEditingTask({...editingTask, icon: value})}>
+                                     onValueChange={(value) => setEditingTask({...editingTask, icon: value as EIcon})}>
                             {iconList.map((icon, index) =>
                                 <ToggleGroupItem key={icon} id={index.toString()} value={icon}
                                                  className={`h-12 aspect-square rounded-lg bg-light-gray data-[state=on]:bg-yellow`}>
@@ -172,7 +218,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
                     </div>
                 </div>
                 <SheetFooter className={`flex-row gap-4 ml-auto`}>
-                    <Button className={`bg-gray-blue rounded-full w-28`}>
+                    <Button className={`bg-gray-blue rounded-full w-28`} onClick={() => handleDeleteTask()}>
                         Delete
                         <Image src={`Trash.svg`} alt={`delete icon`} width={20} height={20}/>
                     </Button>
