@@ -61,11 +61,11 @@ const Task: React.FC<TaskProps> = ({
                                    }) => {
 
     const styles = twMerge(clsx(
+        `bg-light-gray`,
         {
             'bg-yellow': status === EStatus.IN_PROGRESS,
             'bg-light-green': status === EStatus.COMPLETED,
             'bg-pink': status === EStatus.WONT_DO,
-            'bg-light-gray': status === EStatus.TODO,
             'bg-skin': functionality === EFunctionality.ADD_TASK,
         }
     ))

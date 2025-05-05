@@ -4,7 +4,7 @@ import React, {isValidElement, useState} from "react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
-import {EIcon, EStatus, Status, statusMap, TaskProps} from "./Task"
+import {EFunctionality, EIcon, EStatus, Status, statusMap, TaskProps} from "./Task"
 import {Button} from "@/components/ui/button";
 import Image from "next/image";
 import {ToggleGroup, ToggleGroupItem} from "@/components/ui/toggle-group";
@@ -152,7 +152,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
 
     const handleSendTaskPropsToStore = () => {
         if (isValidElement(children)) {
-            setEditingTask(children.props as TaskProps)
+            setEditingTask({...(children.props as TaskProps), functionality: EFunctionality.NORMAL})
         }
     }
 

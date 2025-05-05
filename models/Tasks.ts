@@ -27,7 +27,7 @@ const TaskSchema = new mongoose.Schema<Tasks>({
     
     status: {
         type: String,
-        required: true,
+        default: EStatus.TODO,
     },
     
     boardId: {
