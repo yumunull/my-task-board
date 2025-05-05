@@ -55,7 +55,7 @@ const useBoardStore = create<State & Actions>()(
         
         setBoardId: (id) => set((state)=>{state.boardInfo.id = id}),
 
-        setBoardTaskId: (index, id) => set((state) => {state.boardInfo.tasks[index].id = id}),
+        setBoardTaskId: (index, id) => set((state) => {state.boardInfo.tasks[index]._id = id}),
         
         setBoardTask: (index, task) => set((state) => {state.boardInfo.tasks[index] = task}),
         

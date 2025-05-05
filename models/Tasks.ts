@@ -6,6 +6,7 @@ export interface Tasks extends mongoose.Document {
     icon?: string,
     status?: string,
     boardId: mongoose.Types.ObjectId,
+    index: number,
 }
 
 const TaskSchema = new mongoose.Schema<Tasks>({
@@ -34,6 +35,11 @@ const TaskSchema = new mongoose.Schema<Tasks>({
         required: true,
         ref: "Board",
         set: (val: string) => new mongoose.Types.ObjectId(val),
+    },
+    
+    index: {
+        type: Number,
+        required: true,
     }
 })
 

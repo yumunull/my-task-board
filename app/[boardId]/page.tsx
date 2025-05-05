@@ -1,6 +1,7 @@
 ﻿"use client"
-import {use, useEffect} from "react";
+import {use, useEffect, useState} from "react";
 import useBoardStore from "@/stores/useBoardStore";
+import TaskBoardWrapper from "@/app/_components/TaskBoardWrapper";
 
 
 const Home = ({
@@ -10,6 +11,7 @@ const Home = ({
 }) => {
     const {boardId} = use(params)
     const {setBoardId, setBoardTasks} = useBoardStore()
+    const [loading, setLoading] = useState(true)
     useEffect(() => {
         (async () => {
             const res = await fetch(`/api/boards/${boardId}`)
@@ -19,12 +21,12 @@ const Home = ({
             setBoardTasks(json.tasks)
             
             console.log(json.board, json.tasks)
+            setLoading(false)
         })()
     }, [])
+    if (loading) return <div>Loading...</div>
     return (
-        <div>
-            {boardId}
-        </div>
+        <TaskBoardWrapper/>
     )
 }
 

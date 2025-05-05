@@ -54,7 +54,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
             setBoardTaskId(index, json.id)
 
             if (index === editingTask.index) {
-                setEditingTask({...editingTask, id: json.id})
+                setEditingTask({...editingTask, _id: json.id})
             }
         }))
     }
@@ -71,14 +71,14 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         console.log(json)
         setEditingTask({
             ...editingTask,
-            id: json.id
+            _id: json.id
         })
         setBoardTask(editingTask.index as number, json)
     }
 
     const updateTask = async () => {
         const currentEditingTask = useEditingTaskStore.getState().editingTask
-        const res = await fetch(`/api/tasks/${currentEditingTask.id}`, {
+        const res = await fetch(`/api/tasks/${currentEditingTask._id}`, {
             method: "PUT",
             body: JSON.stringify(editingTask),
             headers: {
@@ -92,7 +92,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
 
     const deleteTask = async () => {
         const currentEditingTask = useEditingTaskStore.getState().editingTask
-        const res = await fetch(`/api/tasks/${currentEditingTask.id}`, {
+        const res = await fetch(`/api/tasks/${currentEditingTask._id}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
@@ -113,7 +113,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         const currentEditingTask = useEditingTaskStore.getState().editingTask
         const currentBoardId = useBoardStore.getState().boardInfo.id
 
-        if (currentEditingTask.id === undefined) {
+        if (currentEditingTask._id === undefined) {
             await createTask()
         } else {
             await updateTask()
@@ -130,11 +130,11 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
             await createBoard()
             needRedirect = true
         }
-
         const currentEditingTask = useEditingTaskStore.getState().editingTask
         const currentBoardId = useBoardStore.getState().boardInfo.id
 
-        if (currentEditingTask.id !== undefined) {
+        console.log(currentBoardId, currentEditingTask)
+        if (currentEditingTask._id !== undefined) {
             await deleteTask()
         }
         

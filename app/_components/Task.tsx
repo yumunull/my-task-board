@@ -41,7 +41,7 @@ export enum EIcon {
 }
 
 export interface TaskProps {
-    id?: string;
+    _id?: string;
     boardId?: string;
     name: string;
     description: string;

@@ -7,7 +7,7 @@ export const GET = async (req: NextRequest, {params}: {params: Promise<{boardId:
     await dbConnect()
     const {boardId} = await params
     const board = await Board.findById(boardId)
-    const tasks = await Task.find({boardId: boardId})
+    const tasks = await Task.find({boardId: boardId}).sort({index: 1})
     return NextResponse.json({board, tasks})
 }
 
