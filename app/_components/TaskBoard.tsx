@@ -28,13 +28,13 @@ const TaskBoard = () => {
                     <p className={`text-description`}>Tasks to keep organised</p>
                 </div>
             </div>
-            <div className={`flex flex-col gap-4 max-w-[600px]`}>
+            <div className={`flex flex-col gap-4 max-w-[600px] w-11/12 min-w-[480px]`}>
                 {boardInfo.tasks.map((props, index) => 
                     <TaskWrapper key={index}>
                         <Task {...props} index={index}/>
                     </TaskWrapper>)}
                 <TaskWrapper>
-                    <Task name={`Add new task`} icon={`/Add_round_duotone.svg`} functionality={EFunctionality.ADD_TASK} description={``}/>
+                    <Task name={`Add new task`} icon={`/Add_round_duotone.svg`} functionality={EFunctionality.ADD_TASK} description={``} index={boardInfo.tasks.length}/>
                 </TaskWrapper>
             </div>
         </div>

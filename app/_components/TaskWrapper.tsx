@@ -1,5 +1,6 @@
-﻿import {Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet"
-import React, {isValidElement} from "react";
+﻿"use client"
+import {Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet"
+import React, {isValidElement, useState} from "react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
@@ -30,6 +31,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
     const {editingTask, setEditingTask} = useEditingTaskStore()
     const {boardInfo, setBoardId, setBoardTasks, setBoardTaskId, setBoardTask, deleteBoardTask} = useBoardStore()
     const router = useRouter()
+    const [isSheetOpen, setIsSheetOpen] = useState(false)
     const createBoard = async () => {
         const res = await fetch("/api/boards", {
             method: "POST",
@@ -45,7 +47,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         await Promise.all(boardInfo.tasks.map(async (task, index) => {
             const res = await fetch("/api/tasks", {
                 method: "POST",
-                body: JSON.stringify({...task, boardId: currentBoardId}),
+                body: JSON.stringify({...task, boardId: currentBoardId, index}),
                 headers: {
                     "Content-Type": "application/json",
                 }
@@ -60,9 +62,11 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
     }
 
     const createTask = async () => {
+        const currentBoardId = useBoardStore.getState().boardInfo.id
+        console.log(editingTask)
         const res = await fetch("/api/tasks", {
             method: "POST",
-            body: JSON.stringify(editingTask),
+            body: JSON.stringify({...editingTask, boardId: currentBoardId}),
             headers: {
                 "Content-Type": "application/json",
             }
@@ -73,7 +77,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
             ...editingTask,
             _id: json.id
         })
-        setBoardTask(editingTask.index as number, json)
+        setBoardTasks([...boardInfo.tasks, editingTask])
     }
 
     const updateTask = async () => {
@@ -88,6 +92,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         if (res.ok) {
             setBoardTask(editingTask.index as number, editingTask)
         }
+        setIsSheetOpen(false)
     }
 
     const deleteTask = async () => {
@@ -101,6 +106,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         if (res.ok) {
             deleteBoardTask(editingTask.index as number)
         }
+        setIsSheetOpen(false)
     }
 
     const handleSaveTask = async () => {
@@ -151,7 +157,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
     }
 
     return (
-        <Sheet>
+        <Sheet open={isSheetOpen} onOpenChange={(open) => {setIsSheetOpen(open)}}>
             <SheetTrigger asChild>
                 <div
                     className={`flex cursor-pointer hover:scale-110 hover:shadow-lg duration-150 rounded-xl overflow-hidden`}
