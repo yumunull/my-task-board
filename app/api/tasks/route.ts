@@ -6,6 +6,7 @@ export const POST = async(res: NextRequest) => {
     await dbConnect()
     const json = await res.json()
     const task = await Task.create(json)
+    console.log(json, task)
     await task.save()
     return NextResponse.json({id: task._id})
 }

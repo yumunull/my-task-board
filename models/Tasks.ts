@@ -1,10 +1,11 @@
-﻿import mongoose from "mongoose";
+﻿import mongoose, {mongo} from "mongoose";
 import {EStatus} from "@/app/_components/Task";
 export interface Tasks extends mongoose.Document {
     name: string,
     description?: string,
     icon?: string,
     status?: string,
+    boardId: mongoose.Types.ObjectId,
 }
 
 const TaskSchema = new mongoose.Schema<Tasks>({
@@ -26,6 +27,13 @@ const TaskSchema = new mongoose.Schema<Tasks>({
     status: {
         type: String,
         required: true,
+    },
+    
+    boardId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "Board",
+        set: (val: string) => new mongoose.Types.ObjectId(val),
     }
 })
 

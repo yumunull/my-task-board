@@ -1,13 +1,5 @@
-﻿import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetFooter,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger
-} from "@/components/ui/sheet"
-import React, {isValidElement, useState} from "react";
+﻿import {Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger} from "@/components/ui/sheet"
+import React, {isValidElement} from "react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
@@ -17,9 +9,7 @@ import Image from "next/image";
 import {ToggleGroup, ToggleGroupItem} from "@/components/ui/toggle-group";
 import useEditingTaskStore from "@/stores/useEditingTaskStore";
 import useBoardStore from "@/stores/useBoardStore";
-import {getEdgeInstrumentationModule} from "next/dist/server/web/globals";
-import UseEditingTaskStore from "@/stores/useEditingTaskStore";
-import {Edit} from "lucide-react";
+import {useRouter} from "next/navigation";
 
 const statusList = [
     EStatus.IN_PROGRESS,
@@ -39,6 +29,7 @@ const iconList = [
 const TaskWrapper = ({children}: React.PropsWithChildren) => {
     const {editingTask, setEditingTask} = useEditingTaskStore()
     const {boardInfo, setBoardId, setBoardTasks, setBoardTaskId, setBoardTask, deleteBoardTask} = useBoardStore()
+    const router = useRouter()
     const createBoard = async () => {
         const res = await fetch("/api/boards", {
             method: "POST",
@@ -49,10 +40,12 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         const json = await res.json()
         setBoardId(json.id)
 
+        const currentBoardId = useBoardStore.getState().boardInfo.id
+        
         await Promise.all(boardInfo.tasks.map(async (task, index) => {
             const res = await fetch("/api/tasks", {
                 method: "POST",
-                body: JSON.stringify(task),
+                body: JSON.stringify({...task, boardId: currentBoardId}),
                 headers: {
                     "Content-Type": "application/json",
                 }
@@ -82,7 +75,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         })
         setBoardTask(editingTask.index as number, json)
     }
-    
+
     const updateTask = async () => {
         const currentEditingTask = useEditingTaskStore.getState().editingTask
         const res = await fetch(`/api/tasks/${currentEditingTask.id}`, {
@@ -92,12 +85,11 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
                 "Content-Type": "application/json",
             }
         })
-        if (res.ok)
-        {
+        if (res.ok) {
             setBoardTask(editingTask.index as number, editingTask)
         }
     }
-    
+
     const deleteTask = async () => {
         const currentEditingTask = useEditingTaskStore.getState().editingTask
         const res = await fetch(`/api/tasks/${currentEditingTask.id}`, {
@@ -112,31 +104,44 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
     }
 
     const handleSaveTask = async () => {
-
+        let needRedirect = false
         if (boardInfo.id === undefined) {
-           await createBoard()
+            await createBoard()
+            needRedirect = true
         }
-        
+
         const currentEditingTask = useEditingTaskStore.getState().editingTask
-        
+        const currentBoardId = useBoardStore.getState().boardInfo.id
+
         if (currentEditingTask.id === undefined) {
             await createTask()
         } else {
             await updateTask()
         }
+        
+        if (needRedirect) {
+            router.push(`/${currentBoardId}`)
+        }
     }
-    
+
     const handleDeleteTask = async () => {
+        let needRedirect = false
         if (boardInfo.id === undefined) {
             await createBoard()
+            needRedirect = true
         }
-        
+
         const currentEditingTask = useEditingTaskStore.getState().editingTask
-        
+        const currentBoardId = useBoardStore.getState().boardInfo.id
+
         if (currentEditingTask.id !== undefined) {
             await deleteTask()
         }
         
+        if (needRedirect) {
+            router.push(`/${currentBoardId}`)
+        }
+
     }
 
     const handleSendTaskPropsToStore = () => {
