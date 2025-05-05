@@ -11,10 +11,6 @@ export const GET = async (req: NextRequest, {params}: {params: Promise<{boardId:
     return NextResponse.json({board, tasks})
 }
 
-export const PUT = async (req: NextRequest, {params}: {params: Promise<{boardId: string}>}) => {
-
-}
-
 export const DELETE = async (req: NextRequest, {params}: {params: Promise<{boardId: string}>}) => {
     await dbConnect()
     const {boardId} = await params

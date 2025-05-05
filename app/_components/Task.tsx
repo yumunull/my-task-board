@@ -57,7 +57,6 @@ const Task: React.FC<TaskProps> = ({
                                        icon,
                                        status = EStatus.TODO,
                                        functionality = EFunctionality.NORMAL,
-                                       index
                                    }) => {
 
     const styles = twMerge(clsx(

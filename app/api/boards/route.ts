@@ -1,8 +1,8 @@
-﻿import {NextRequest, NextResponse} from "next/server";
+﻿import {NextResponse} from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import Board from "@/models/Boards"
 
-export const POST = async (req: NextRequest) => {
+export const POST = async () => {
     await dbConnect();
     
     const board = await Board.create({})

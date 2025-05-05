@@ -1,4 +1,4 @@
-﻿import mongoose, {mongo} from "mongoose";
+﻿import mongoose from "mongoose";
 import {EStatus} from "@/app/_components/Task";
 export interface Tasks extends mongoose.Document {
     name: string,

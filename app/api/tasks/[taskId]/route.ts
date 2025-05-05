@@ -14,10 +14,13 @@ export const DELETE = async(req: NextRequest, { params }: {params: Promise<{task
     await dbConnect()
     const {taskId} = await params
     try {
-        const task = await Task.findOneAndDelete({_id: taskId})
+        const task = await Task.findById(taskId)
+        await Task.findOneAndDelete({_id: taskId})
+        
         await Task.updateMany({boardId: task.boardId, index: {$gt: task.index}}, {$inc: {index: -1}})
         return NextResponse.json({id: taskId})   
-    } catch(e:any) {
-        return NextResponse.json({error: e.message}, {status: 404})   
+    } catch(e) {
+        const error = e as Error
+        return NextResponse.json({error: error.message}, {status: 404})   
     }
 }

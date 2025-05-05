@@ -1,7 +1,6 @@
 ﻿import {create} from "zustand";
 import {EIcon, EStatus, TaskProps} from "@/app/_components/Task";
 import {immer} from "zustand/middleware/immer";
-import {STATE_CLOSED} from "mongodb/src/sdam/common";
 
 interface State {
     editingTask: TaskProps,

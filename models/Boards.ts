@@ -1,4 +1,5 @@
 ﻿import mongoose from "mongoose";
+
 export interface Boards extends mongoose.Document {
     
 }

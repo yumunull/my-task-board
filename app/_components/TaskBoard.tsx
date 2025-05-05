@@ -1,7 +1,6 @@
 ﻿"use client"
-import Task, {EFunctionality, EIcon, EStatus, TaskProps} from "@/app/_components/Task";
+import Task, {EFunctionality} from "@/app/_components/Task";
 import Image from "next/image";
-import {ReactNode, useState} from "react";
 import TaskWrapper from "@/app/_components/TaskWrapper";
 import useBoardStore from "@/stores/useBoardStore";
 

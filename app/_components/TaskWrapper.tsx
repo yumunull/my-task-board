@@ -106,7 +106,6 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         if (res.ok) {
             deleteBoardTask(editingTask.index as number)
         }
-        setIsSheetOpen(false)
     }
 
     const handleSaveTask = async () => {
@@ -128,6 +127,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         if (needRedirect) {
             router.push(`/${currentBoardId}`)
         }
+        setIsSheetOpen(false)
     }
 
     const handleDeleteTask = async () => {
@@ -147,6 +147,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         if (needRedirect) {
             router.push(`/${currentBoardId}`)
         }
+        setIsSheetOpen(false)
 
     }
 
@@ -208,7 +209,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
                             ...editingTask,
                             status: value as EStatus
                         })}>
-                            {statusList.map((status, index) =>
+                            {statusList.map((status) =>
                                 <ToggleGroupItem value={status}
                                                  className={`w-full group h-14 flex justify-start !rounded-2xl p-[0.15em] border-light-gray border-2 data-[state=on]:border-blue`}
                                                  key={status}>

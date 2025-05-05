@@ -23,7 +23,7 @@ const Home = ({
             console.log(json.board, json.tasks)
             setLoading(false)
         })()
-    }, [])
+    }, [boardId])
     if (loading) return <div>Loading...</div>
     return (
         <TaskBoardWrapper/>
