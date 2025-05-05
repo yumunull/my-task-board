@@ -11,6 +11,7 @@ import {ToggleGroup, ToggleGroupItem} from "@/components/ui/toggle-group";
 import useEditingTaskStore from "@/stores/useEditingTaskStore";
 import useBoardStore from "@/stores/useBoardStore";
 import {useRouter} from "next/navigation";
+import Loader from "@/app/_components/Loader";
 
 const statusList = [
     EStatus.IN_PROGRESS,
@@ -32,6 +33,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
     const {boardInfo, setBoardId, setBoardTasks, setBoardTaskId, setBoardTask, deleteBoardTask} = useBoardStore()
     const router = useRouter()
     const [isSheetOpen, setIsSheetOpen] = useState(false)
+    const [loading, setLoading] = useState(false)
     const createBoard = async () => {
         const res = await fetch("/api/boards", {
             method: "POST",
@@ -109,6 +111,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
     }
 
     const handleSaveTask = async () => {
+        setLoading(true)
         let needRedirect = false
         if (boardInfo.id === undefined) {
             await createBoard()
@@ -127,10 +130,12 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         if (needRedirect) {
             router.push(`/${currentBoardId}`)
         }
+        setLoading(false)
         setIsSheetOpen(false)
     }
 
     const handleDeleteTask = async () => {
+        setLoading(true)
         let needRedirect = false
         if (boardInfo.id === undefined) {
             await createBoard()
@@ -147,8 +152,8 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         if (needRedirect) {
             router.push(`/${currentBoardId}`)
         }
+        setLoading(false)
         setIsSheetOpen(false)
-
     }
 
     const handleSendTaskPropsToStore = () => {
@@ -156,9 +161,14 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
             setEditingTask({...(children.props as TaskProps), functionality: EFunctionality.NORMAL})
         }
     }
+    
+    const setIsSheetOpenNotLoading = (open: boolean) => {
+        if (loading) return
+        setIsSheetOpen(open)
+    }
 
     return (
-        <Sheet open={isSheetOpen} onOpenChange={(open) => {setIsSheetOpen(open)}}>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpenNotLoading}>
             <SheetTrigger asChild>
                 <div
                     className={`flex cursor-pointer hover:scale-110 hover:shadow-lg duration-150 rounded-xl overflow-hidden`}
@@ -239,10 +249,18 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
                         <Image src={`Done_round.svg`} alt={`save icon`} width={20} height={20}/>
                     </Button>
                 </SheetFooter>
+                {loading && <TaskLoading/>}
             </SheetContent>
         </Sheet>
     )
 }
 
+const TaskLoading = () => {
+    return (
+        <div className={`absolute w-full h-full flex justify-center items-center bg-black-transparent top-0 left-0 z-10 rounded-[inherit]`}>
+            <Loader/>
+        </div>
+    )
+}
 
 export default TaskWrapper;

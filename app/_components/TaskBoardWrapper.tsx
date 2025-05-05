@@ -1,9 +1,10 @@
 ﻿import TaskBoard from "@/app/_components/TaskBoard";
+import {PropsWithChildren} from "react";
 
-const TaskBoardWrapper = () => {
+const TaskBoardWrapper = ({children}: PropsWithChildren) => {
     return (
         <div className={`min-h-screen min-w-screen flex flex-col justify-center items-center`}>
-            <TaskBoard/>
+            {children}
         </div>
     )
 }

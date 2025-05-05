@@ -2,6 +2,8 @@
 import {use, useEffect, useState} from "react";
 import useBoardStore from "@/stores/useBoardStore";
 import TaskBoardWrapper from "@/app/_components/TaskBoardWrapper";
+import TaskBoard from "@/app/_components/TaskBoard";
+import Loader from "@/app/_components/Loader";
 
 
 const Home = ({
@@ -16,17 +18,22 @@ const Home = ({
         (async () => {
             const res = await fetch(`/api/boards/${boardId}`)
             const json = await res.json()
-            
+
             setBoardId(json.board._id)
             setBoardTasks(json.tasks)
-            
+
             console.log(json.board, json.tasks)
             setLoading(false)
         })()
     }, [boardId])
-    if (loading) return <div>Loading...</div>
     return (
-        <TaskBoardWrapper/>
+        <TaskBoardWrapper>
+            {loading ?
+                <Loader/>
+                :
+                <TaskBoard/>
+            }
+        </TaskBoardWrapper>
     )
 }
 
