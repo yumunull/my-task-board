@@ -1,5 +1,4 @@
-﻿import TaskBoard from "@/app/_components/TaskBoard";
-import {PropsWithChildren} from "react";
+﻿import {PropsWithChildren} from "react";
 
 const TaskBoardWrapper = ({children}: PropsWithChildren) => {
     return (
