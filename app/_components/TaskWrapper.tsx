@@ -178,7 +178,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
                 </div>
             </SheetTrigger>
             <SheetContent
-                className={`sm:max-w-[600px] h-[calc(100%-32px)] my-auto mr-4 rounded-lg p-6 font-outfit [&_Label]:text-input-label [&_Label]:text-gray-blue **:placeholder:text-gray-blue`}>
+                className={`sm:max-w-[600px] w-[calc(100%-32px)] h-[calc(100%-32px)] my-auto mr-4 sm:mr-4 rounded-lg p-6 font-outfit [&_Label]:text-input-label [&_Label]:text-gray-blue **:placeholder:text-gray-blue`}>
                 <SheetHeader className={`p-0 text-task-title `}>
                     <SheetTitle>Task details</SheetTitle>
                 </SheetHeader>

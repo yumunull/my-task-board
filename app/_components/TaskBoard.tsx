@@ -19,7 +19,7 @@ const TaskBoard = () => {
     // },[])
     
     return (
-        <div className={`flex flex-col justify-center items-center h-full gap-y-8 font-outfit`}>
+        <div className={`flex flex-col justify-center items-center h-full gap-y-8 font-outfit min-w-[320px] p-8 max-w-[600px]`}>
             <div className={`flex gap-4 self-start items-start`}>
                 <Image src={`/Logo.svg`} alt={`logo`} width={48} height={48} className={``}/>
                 <div className={`flex flex-col gap-4`}>
@@ -27,7 +27,7 @@ const TaskBoard = () => {
                     <p className={`text-description`}>Tasks to keep organised</p>
                 </div>
             </div>
-            <div className={`flex flex-col gap-4 max-w-[600px] w-11/12 min-w-[480px]`}>
+            <div className={`flex flex-col gap-4`}>
                 {boardInfo.tasks.map((props, index) => 
                     <TaskWrapper key={index}>
                         <Task {...props} index={index}/>
