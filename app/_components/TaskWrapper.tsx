@@ -12,6 +12,7 @@ import useEditingTaskStore from "@/stores/useEditingTaskStore";
 import useBoardStore from "@/stores/useBoardStore";
 import {useRouter} from "next/navigation";
 import Loader from "@/app/_components/Loader";
+import {toast} from "sonner";
 
 const statusList = [
     EStatus.IN_PROGRESS,
@@ -45,7 +46,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         setBoardId(json.id)
 
         const currentBoardId = useBoardStore.getState().boardInfo.id
-        
+
         await Promise.all(boardInfo.tasks.map(async (task, index) => {
             const res = await fetch("/api/tasks", {
                 method: "POST",
@@ -64,6 +65,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
     }
 
     const createTask = async () => {
+        if (!checkValueRequireAndToast("Task name", editingTask.name)) return false
         const currentBoardId = useBoardStore.getState().boardInfo.id
         console.log(editingTask)
         const res = await fetch("/api/tasks", {
@@ -73,16 +75,20 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
                 "Content-Type": "application/json",
             }
         })
-        const json = await res.json()
-        console.log(json)
-        setEditingTask({
-            ...editingTask,
-            _id: json.id
-        })
-        setBoardTasks([...boardInfo.tasks, editingTask])
+        if (res.ok) {
+            const json = await res.json()
+            console.log(json)
+            setEditingTask({
+                ...editingTask,
+                _id: json.id
+            })
+            setBoardTasks([...boardInfo.tasks, editingTask])
+        }
+        return true;
     }
 
     const updateTask = async () => {
+        if (!checkValueRequireAndToast("Task name", editingTask.name)) return false
         const currentEditingTask = useEditingTaskStore.getState().editingTask
         const res = await fetch(`/api/tasks/${currentEditingTask._id}`, {
             method: "PUT",
@@ -95,6 +101,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
             setBoardTask(editingTask.index as number, editingTask)
         }
         setIsSheetOpen(false)
+        return true
     }
 
     const deleteTask = async () => {
@@ -121,17 +128,20 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         const currentEditingTask = useEditingTaskStore.getState().editingTask
         const currentBoardId = useBoardStore.getState().boardInfo.id
 
+        let createOrUpdateTaskSuccess = false
         if (currentEditingTask._id === undefined) {
-            await createTask()
+            createOrUpdateTaskSuccess = await createTask()
         } else {
-            await updateTask()
+            createOrUpdateTaskSuccess = await updateTask()
         }
-        
+
         if (needRedirect) {
             router.push(`/${currentBoardId}`)
         }
         setLoading(false)
-        setIsSheetOpen(false)
+        if (createOrUpdateTaskSuccess) {
+            setIsSheetOpen(false)
+        }
     }
 
     const handleDeleteTask = async () => {
@@ -148,7 +158,7 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         if (currentEditingTask._id !== undefined) {
             await deleteTask()
         }
-        
+
         if (needRedirect) {
             router.push(`/${currentBoardId}`)
         }
@@ -156,12 +166,20 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
         setIsSheetOpen(false)
     }
 
+    const checkValueRequireAndToast = (name: string, value: string) => {
+        if (value === "") {
+            toast.error(`${name} can not be empty`)
+            return false
+        }
+        return true
+    }
+
     const handleSendTaskPropsToStore = () => {
         if (isValidElement(children)) {
             setEditingTask({...(children.props as TaskProps), functionality: EFunctionality.NORMAL})
         }
     }
-    
+
     const setIsSheetOpenNotLoading = (open: boolean) => {
         if (loading) return
         setIsSheetOpen(open)
@@ -257,7 +275,8 @@ const TaskWrapper = ({children}: React.PropsWithChildren) => {
 
 const TaskLoading = () => {
     return (
-        <div className={`absolute w-full h-full flex justify-center items-center bg-black-transparent top-0 left-0 z-10 rounded-[inherit]`}>
+        <div
+            className={`absolute w-full h-full flex justify-center items-center bg-black-transparent top-0 left-0 z-10 rounded-[inherit]`}>
             <Loader/>
         </div>
     )
